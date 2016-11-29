@@ -41,14 +41,64 @@ function getAllNotes(req, res, next) {
 }
 
 function getSingleNote(req, res, next) {
-
+  var noteID = parseInt(req.params.id);
+  console.log(noteID);
+  db.one('select * from notes where id = $1', noteID)
+    .then(function (data) {
+      res.status(200)
+        .json({
+          status: 'success',
+          data: data,
+          message: 'Retrieved ONE note'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
 }
 function createNote(req, res, next) {
-
+  req.body.age = parseInt(req.body.age);
+  db.none('insert into notes(description)' +
+      'values(${description})',
+    req.body)
+    .then(function () {
+      res.status(200)
+        .json({
+          status: 'success',
+          message: 'Inserted one note'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
 }
 function updateNote(req, res, next) {
-
+  db.none('update notes set description=$1 where id=2',
+    [req.body.description, parseInt(req.params.id)])
+    .then(function () {
+      res.status(200)
+        .json({
+          status: 'success',
+          message: 'Updated note'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
 }
 function removeNote(req, res, next) {
-
+  var noteID = parseInt(req.params.id);
+  db.result('delete from notes where id = $1', noteID)
+    .then(function (result) {
+      /* jshint ignore:start */
+      res.status(200)
+        .json({
+          status: 'success',
+          message: `Removed ${result.rowCount} note`
+        });
+      /* jshint ignore:end */
+    })
+    .catch(function (err) {
+      return next(err);
+    });
 }
