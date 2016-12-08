@@ -57,14 +57,12 @@ function getSingleNote(req, res, next) {
     });
 }
 function createNote(req, res, next) {
-  req.body.age = parseInt(req.body.age);
-  db.none('insert into notes(description)' +
-      'values(${description})',
-    req.body)
-    .then(function () {
+  db.one('insert into notes(description)' + 'values(${description}) returning *',req.body)
+    .then(function (data) {
       res.status(200)
         .json({
           status: 'success',
+          data: data,
           message: 'Inserted one note'
         });
     })
